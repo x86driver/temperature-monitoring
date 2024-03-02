@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <RadioLib.h>
+#include <Arduino_HS300x.h>
 
 #if defined(ESP32)
 SX1268 radio = new Module(5, 25, 16, -1);
@@ -13,6 +14,11 @@ SX1278 radio = new Module(5, 7, 6, RADIOLIB_NC);
 void setup() {
   Serial.begin(115200);
   while (!Serial);
+
+  if (!HS300x.begin()) {
+    Serial.println("Failed to initialize humidity temperature sensor!");
+    while (1);
+  }
 
   while (true) {
     // initialize SX1278 with default settings
@@ -29,16 +35,18 @@ void setup() {
   }
 }
 
-int count = 0;
+void loop_tx() {
+  float temperature = HS300x.readTemperature();
+  float humidity    = HS300x.readHumidity();
 
-void loop() {
   Serial.print(F("[SX1278] Transmitting packet ... "));
 
   // you can transmit C-string or Arduino string up to
   // 255 characters long
-  String str = "Hello World! #" + String(count++);
+  String str = "Temperature = " + String(temperature) + " °C, Humidity = " + String(humidity) + " %";
   int state = radio.transmit(str);
 
+  Serial.print(str);
   // you can also transmit byte array up to 256 bytes long
   /*
     byte byteArr[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
@@ -71,4 +79,16 @@ void loop() {
 
   // wait for a second before transmitting again
   delay(1000);
+}
+
+void loop_rx() {
+
+}
+
+void loop() {
+  #if defined(ESP32)
+    loop_rx();
+  #elif defined(ARDUINO_ARDUINO_NANO33BLE)
+    loop_tx();
+  #endif
 }
