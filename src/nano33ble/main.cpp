@@ -3,7 +3,7 @@
 #include <Arduino_HS300x.h>
 
 #if defined(ESP32)
-SX1268 radio = new Module(5, 25, 16, -1);
+SX1278 radio = new Module(5, 17, 16, RADIOLIB_NC);
 #elif defined(ARDUINO_ARDUINO_NANO33BLE)
 // Arduino Nano 33 BLE Sense Rev2
 SX1278 radio = new Module(5, 7, 6, RADIOLIB_NC);
