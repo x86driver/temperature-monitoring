@@ -92,7 +92,8 @@ void setup_rtc() {
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
+  if (!Serial)
+    delay(1000);
 
   if (!HS300x.begin()) {
     Serial.println("Failed to initialize humidity temperature sensor!");
@@ -136,7 +137,7 @@ void loop () {
 
   // you can transmit C-string or Arduino string up to
   // 255 characters long
-  String str = "DateTime = " + String(datestring) +  ", Temperature = " + String(temperature) + " °C, Humidity = " + String(humidity) + " %";
+  String str = String(datestring) +  "," + String(temperature) + "," + String(humidity);
   int state = radio.transmit(str);
 
   Serial.print(str);
